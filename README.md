@@ -2,35 +2,25 @@
 
 ![Metric Contract Check cover](assets/readme-cover.svg)
 
-Validate metric names and event contracts before analytics changes ship.
+Validate metric names and event contracts before analytics changes ship. It keeps the review small: one input file, a short list of findings, and enough context to fix the line that caused the warning.
 
-## The rule file is the product
+## Inspection line
 
-- `missing-owner` (high): metric ownership is missing. Fix: Assign an owning team before accepting the metric..
-- `currency-unit-risk` (medium): money metric may not declare units. Fix: Declare currency and scale explicitly..
-- `high-cardinality-tag` (low): high-cardinality tag detected. Fix: Remove per-user tags or route to logs instead of metrics..
+![Rule flow](assets/readme-diagram.svg)
 
-Everything else in the repo exists to feed records into those checks and render the answer in a way a person can act on.
+## Signals
 
-## Shell session
+| Signal | Level | What it flags | Fix direction |
+| --- | --- | --- | --- |
+| `missing-owner` | high | metric ownership is missing | Assign an owning team before accepting the metric. |
+| `currency-unit-risk` | medium | money metric may not declare units | Declare currency and scale explicitly. |
+| `high-cardinality-tag` | low | high-cardinality tag detected | Remove per-user tags or route to logs instead of metrics. |
+
+## Command path
 
 ```bash
 git clone https://github.com/mertefekurt/metric-contract-check.git
 cd metric-contract-check
-python -m venv .venv
-source .venv/bin/activate
 python -m pip install -e ".[dev]"
 metric-contract-check examples/sample.txt
-metric-contract-check examples/sample.txt --json
-```
-
-## Repository shape
-
-```text
-.github/        CI workflow
-examples/       sample inputs
-src/            package source
-tests/          test coverage
-.gitignore      project file
-pyproject.toml  package metadata
 ```
