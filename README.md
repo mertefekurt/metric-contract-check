@@ -1,71 +1,46 @@
-# metric-contract-check
+# Metric Contract Check
 
-`metric-contract-check` is a small local CLI that validate metric names and event contracts before analytics changes ship.
+<p align="center">
+  <img src="assets/readme-cover.svg" alt="Metric Contract Check cover" width="100%" />
+</p>
 
-## Why it is useful
+![stack](https://img.shields.io/badge/stack-Python-4b5563?style=flat-square) ![python](https://img.shields.io/badge/python-3.11-2563eb?style=flat-square) ![license](https://img.shields.io/badge/license-MIT-16a34a?style=flat-square) ![ci](https://img.shields.io/badge/ci-GitHub%20Actions-dc2626?style=flat-square)
 
-Analytics regressions are hard to debug after dashboards break. This CLI catches risky metric naming and ownership gaps in review.
+Validate metric names and event contracts before analytics changes ship.
 
-## Key features
+## The short version
 
-- reads text, JSON, JSONL, or CSV inputs
-- returns Markdown or JSON reports
-- supports severity-based CI exit codes
-- keeps all checks deterministic and offline
-- includes focused rules for this project:
-- `missing-owner`: metric ownership is missing
-- `currency-unit-risk`: money metric may not declare units
-- `high-cardinality-tag`: high-cardinality tag detected
+`metric-contract-check` is intentionally small: feed it a file, get deterministic findings, and decide whether the result should block a merge or just guide cleanup.
 
-## Installation
+## Rule surface
 
-```bash
-python -m pip install -e ".[dev]"
-```
+| Rule | Severity | What it catches |
+| --- | --- | --- |
+| `missing-owner` | high | metric ownership is missing |
+| `currency-unit-risk` | medium | money metric may not declare units |
+| `high-cardinality-tag` | low | high-cardinality tag detected |
 
 ## Usage
 
 ```bash
+python -m pip install -e ".[dev]"
 metric-contract-check examples/sample.txt
-metric-contract-check examples/sample.txt --json
-metric-contract-check path/to/input.txt --fail-on medium --out report.md
-python -m metric_contract_check --help
+metric-contract-check examples/sample.txt --json --fail-on medium
 ```
 
-Example input:
+## Useful defaults
 
-```text
-event: checkout.failed metric missing owner and unit dollars_total
-```
+| Option | Reason |
+| --- | --- |
+| `--json` | machine-readable output for scripts |
+| `--fail-on medium` | stricter CI gate when warnings matter |
+| `--format auto` | let the reader detect text, CSV, JSON, or JSONL |
 
-## CLI options
-
-```text
-metric-contract-check INPUT [--format auto|text|jsonl|csv|json] [--json]
-             [--fail-on low|medium|high] [--out PATH]
-```
-
-`INPUT` is any metric contract text or event spec. The tool exits with code `2` when findings meet the selected
-threshold, which makes it easy to use in GitHub Actions or release checks.
-
-## Workflow
-
-```mermaid
-flowchart LR
-    A[input file] --> B[format reader]
-    B --> C[project-specific rules]
-    C --> D[risk score]
-    D --> E[Markdown or JSON report]
-```
-
-## Tests
+## Local checks
 
 ```bash
+python -m pip install -e ".[dev]"
 ruff check .
 pytest
 python -m metric_contract_check --help
 ```
-
-## License
-
-MIT
