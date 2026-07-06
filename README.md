@@ -1,46 +1,36 @@
 # Metric Contract Check
 
-<p align="center">
-  <img src="assets/readme-cover.svg" alt="Metric Contract Check cover" width="100%" />
-</p>
-
-![stack](https://img.shields.io/badge/stack-Python-4b5563?style=flat-square) ![python](https://img.shields.io/badge/python-3.11-2563eb?style=flat-square) ![license](https://img.shields.io/badge/license-MIT-16a34a?style=flat-square) ![ci](https://img.shields.io/badge/ci-GitHub%20Actions-dc2626?style=flat-square)
+![Metric Contract Check cover](assets/readme-cover.svg)
 
 Validate metric names and event contracts before analytics changes ship.
 
-## The short version
+## The rule file is the product
 
-`metric-contract-check` is intentionally small: feed it a file, get deterministic findings, and decide whether the result should block a merge or just guide cleanup.
+- `missing-owner` (high): metric ownership is missing. Fix: Assign an owning team before accepting the metric..
+- `currency-unit-risk` (medium): money metric may not declare units. Fix: Declare currency and scale explicitly..
+- `high-cardinality-tag` (low): high-cardinality tag detected. Fix: Remove per-user tags or route to logs instead of metrics..
 
-## Rule surface
+Everything else in the repo exists to feed records into those checks and render the answer in a way a person can act on.
 
-| Rule | Severity | What it catches |
-| --- | --- | --- |
-| `missing-owner` | high | metric ownership is missing |
-| `currency-unit-risk` | medium | money metric may not declare units |
-| `high-cardinality-tag` | low | high-cardinality tag detected |
-
-## Usage
+## Shell session
 
 ```bash
+git clone https://github.com/mertefekurt/metric-contract-check.git
+cd metric-contract-check
+python -m venv .venv
+source .venv/bin/activate
 python -m pip install -e ".[dev]"
 metric-contract-check examples/sample.txt
-metric-contract-check examples/sample.txt --json --fail-on medium
+metric-contract-check examples/sample.txt --json
 ```
 
-## Useful defaults
+## Repository shape
 
-| Option | Reason |
-| --- | --- |
-| `--json` | machine-readable output for scripts |
-| `--fail-on medium` | stricter CI gate when warnings matter |
-| `--format auto` | let the reader detect text, CSV, JSON, or JSONL |
-
-## Local checks
-
-```bash
-python -m pip install -e ".[dev]"
-ruff check .
-pytest
-python -m metric_contract_check --help
+```text
+.github/        CI workflow
+examples/       sample inputs
+src/            package source
+tests/          test coverage
+.gitignore      project file
+pyproject.toml  package metadata
 ```
